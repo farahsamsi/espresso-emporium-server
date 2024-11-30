@@ -26,6 +26,19 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    // declaring collection for DB
+    const coffeeCollection = client.db("coffeesDB").collection("coffees");
+
+    // receive coffees data from client side
+    app.post("/coffees", async (req, res) => {
+      const newCoffee = req.body;
+      console.log(newCoffee);
+
+      const result = await coffeeCollection.insertOne(newCoffee);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -33,7 +46,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
