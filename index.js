@@ -27,6 +27,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    // ------------- COFFEES ---------------------
+
     // declaring collection for DB
     const coffeeCollection = client.db("coffeesDB").collection("coffees");
 
@@ -54,11 +56,52 @@ async function run() {
       res.send(result);
     });
 
+    // update coffee "PUT" operation
+    app.put("/coffees/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+      const coffee = {
+        $set: {
+          name: updatedCoffee.name,
+          chef: updatedCoffee.chef,
+          supplier: updatedCoffee.supplier,
+          taste: updatedCoffee.taste,
+          category: updatedCoffee.category,
+          details: updatedCoffee.details,
+          photo: updatedCoffee.photo,
+        },
+      };
+      const result = await coffeeCollection.updateOne(filter, coffee, options);
+      res.send(result);
+    });
+
     // delete a coffee from received _id
     app.delete("/coffees/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await coffeeCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // ---------------- USERS -------------------
+
+    // declaring collection for DB
+    const userCollection = client.db("coffeesDB").collection("users");
+
+    // receive users data from client side
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      console.log(newUser);
+
+      const result = await userCollection.insertOne(newUser);
+      res.send(result);
+    });
+
+    app.get("/users", async (req, res) => {
+      const cursor = userCollection.find();
+      const result = await cursor.toArray();
       res.send(result);
     });
 
